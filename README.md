@@ -1,9 +1,3 @@
-# portfolio_optimization
-📈 Predictive Portfolio Optimizer using LGBM + Ridge regression, enhanced with FinBERT sentiment overlay and Sharpe-maximizing allocation via PyPortfolioOpt. Includes comparative backtesting, technical feature engineering, and daily rebalancing.
-<pre><code>## 📘 Predictive Portfolio Optimization with Sentiment Overlay
-
----
-
 ### 📌 Overview
 
 This project implements a **machine learning-powered portfolio optimizer** using predicted 5-day returns from financial and technical signals, enhanced by a **news sentiment overlay**.  
