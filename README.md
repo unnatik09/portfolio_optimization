@@ -1,88 +1,95 @@
-### 📌 Overview
+# 📊 Predictive Portfolio Optimization using ML + Sentiment (NIFTY 30)
 
-This project implements a **machine learning-powered portfolio optimizer** using predicted 5-day returns from financial and technical signals, enhanced by a **news sentiment overlay**.  
-It allocates weights to the top 30 NIFTY 50 stocks using **LGBM + Ridge regression ensemble**, optimizing for **Sharpe Ratio** via the `PyPortfolioOpt` library.
-
----
-
-### 🔧 Pipeline Steps
-
-1. **Feature Engineering**  
-   - Extracted technical indicators (RSI, MACD, ADX, CCI, BB Width, etc.)
-   - Computed rolling volatility, returns, and market regime (bull/bear/neutral)
-
-2. **Target Construction**  
-   - Calculated 5-day forward returns for each stock (future price % change)
-
-3. **Modeling**  
-   - Trained a `MultiOutputRegressor` ensemble:  
-     `y_pred = 0.7 × LGBM + 0.3 × Ridge`
-   - LGBM captured nonlinearities efficiently, Ridge reduced overfitting.
-
-4. **Sentiment Analysis**  
-   - Fetched last 30 days of headlines per stock using `NewsAPI`
-   - Scored using `FinBERT` (PyTorch)  
-   - Adjusted predicted returns as:  
-     μ<sub>sent</sub> = μ<sub>pred</sub> × (1 + α × sentiment), with α = 0.5
-
-5. **Portfolio Optimization**  
-   - Used `EfficientFrontier` (PyPortfolioOpt) to maximize Sharpe ratio  
-   - Performed optimization both with and without sentiment overlay  
-   - Simulated and compared cumulative returns and metrics
+This project builds a predictive portfolio allocation engine for the top 30 NIFTY stocks by:
+- Extracting technical & market regime features
+- Predicting short-term returns using a blended ML model (LGBM + Ridge)
+- Optimizing portfolio weights using `PyPortfolioOpt` to maximize Sharpe ratio
+- Enhancing allocation with **daily sentiment overlay** via FinBERT
+- Comparing performance against Equal-Weighted and NIFTY50 index
 
 ---
 
-### 📊 Performance Metrics *(example — update later)*
+## 🧠 Model Summary
 
-| Metric                | Base Portfolio | With Sentiment |
-|-----------------------|----------------|----------------|
-| Cumulative Return     | 17.1%          | **19.3%**      |
-| Annualized Return     | 41.2%          | 44.0%          |
-| Annualized Volatility | 19.8%          | 19.5%          |
-| Sharpe Ratio          | 2.08           | **2.23**       |
-| Max Drawdown          | -30.9%         | -28.6%         |
-
----
-
-### 📈 Visualizations
-
-- 📉 Technical Feature Line Plots (RSI, MACD, ADX, Volatility)
-- 🧊 Market Regime Heatmap
-- 🔥 Sector-wise Correlation Heatmaps
-- ⚖️ Portfolio Allocation (Pie Chart)
-- 📈 Cumulative Return Comparison (ML vs Equal vs NIFTY)
-- 📰 Sentiment-based Portfolio Comparison (Last 30 Days)
-- 📊 30-Day Rolling Sharpe Ratio
+| Model Component    | Description                                      |
+|--------------------|--------------------------------------------------|
+| Features           | Technical indicators (RSI, MACD, ADX, BBW, etc.), Market regime, Volume shifts |
+| Targets            | 5-day forward returns for each stock             |
+| ML Models          | Ensemble: 70% LightGBM + 30% Ridge Regression    |
+| Optimizer          | Efficient Frontier (Max Sharpe via PyPortfolioOpt) |
+| Sentiment Overlay  | FinBERT on last 30 days of news headlines        |
+| Evaluation         | R² (train/test), Sharpe ratio, cumulative returns |
+| Backtests          | ML Portfolio vs Equal-Weight vs NIFTY Index      |
 
 ---
 
-### 💡 Modeling Notes
+## 🔍 ML Model R² Performance
 
-- **LGBM + Ridge** performed better than LGBM or Ridge alone  
-- **PCA** increased overfitting, hence excluded  
-- **Optuna** tuning gave very high train R² (~1.0) but low test R² (~0.4–0.5), indicating overfit  
-- **MLP** underperformed due to the **non-temporal**, tabular nature of data  
-- **LSTM/Transformer** models were not suitable here  
-- Final ensemble generalizes well with balanced bias-variance
+| Metric         | Average (30 Stocks) |
+|----------------|---------------------|
+| Train R²       | ~0.73               |
+| Test R²        | ~0.55               |
 
----
-
-### 🆕 What’s Unique in This Project?
-
-- ✅ **Sentiment Overlay Integration** — FinBERT-enhanced predictions  
-- ✅ **Comparative Backtesting** with baseline portfolios  
-- ✅ **Sector-wise Correlation Analysis**  
-- ✅ **Rolling Sharpe Visualization**  
-- ✅ **End-to-End Rebalancing Pipeline**, suitable for daily automation
+(See full breakdown in notebook.)
 
 ---
 
-### 📂 Files
+## 💼 Portfolio Performance (5-Year Backtest)
 
-| File                        | Purpose                               |
+| Metric              | Value             |
+|---------------------|------------------:|
+| **Cumulative Return** | 357.22%         |
+| **Annual Return**     | 41.17%          |
+| **Volatility**        | 19.78%          |
+| **Sharpe Ratio**      | 2.08            |
+| **Max Drawdown**      | -30.92%         |
+
+---
+
+## 📰 Impact of Sentiment (Last 30 Days Only)
+
+| Metric         | Base Portfolio | With Sentiment |
+|----------------|----------------|----------------|
+| Sharpe Ratio   | **1.83**       | **1.91**       |
+| Performance    | Adjusted only for last 30 days | — |
+
+> ✅ Sentiment-adjusted weights slightly outperform in Sharpe ratio, especially under volatile conditions.
+
+---
+
+## 📈 Plots Included
+
+- Rolling Sharpe Ratio
+- Cumulative Returns (ML vs Equal-Weight vs NIFTY)
+- Feature Exploratory Analysis (RSI, MACD, Volatility, etc.)
+- Market Regime Heatmaps
+- Correlation Heatmaps (sector-wise)
+- Portfolio Allocation Pie Chart
+
+---
+
+## 📦 Files
+
+| File                        | Description                            |
 |-----------------------------|----------------------------------------|
-| `main_notebook.ipynb`       | Full pipeline from data to simulation |
-| `weights_YYYY-MM-DD.csv`    | Sentiment-adjusted weights (daily)    |
-| `allocation_YYYY-MM-DD.csv` | ₹1L Allocation based on weights       |
-| `daily_returns.csv`         | Historical returns (used for backtest)|
-</code></pre>
+| `final_notebook.ipynb`      | All code: feature engineering, training, optimization, sentiment |
+| `daily_returns.csv`         | Historical daily returns for 30 stocks |
+| `weights_YYYY-MM-DD.csv`    | Final optimized weights (saved daily)  |
+| `allocation_YYYY-MM-DD.csv` | ₹1L allocation based on sentiment-adjusted weights |
+| `portfolio_comparison.png`  | Cumulative returns chart               |
+
+---
+
+## 🚀 Future Improvements
+
+- Add sector exposure control during optimization
+- Incorporate macroeconomic indicators (CPI, GDP, etc.)
+- Collect daily sentiment for longer horizon backtests
+- Try reinforcement learning for dynamic rebalancing
+
+---
+
+## 📚 Acknowledgements
+
+- [`yiyanghkust/finbert-tone`](https://huggingface.co/yiyanghkust/finbert-tone) for sentiment
+- `yfinance`, `scikit-learn`, `LightGBM`, `PyPortfolioOpt`, `NewsAPI`
