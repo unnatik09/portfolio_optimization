@@ -50,7 +50,7 @@ This project builds a predictive portfolio allocation engine for the top 30 NIFT
 
 | Metric         | Base Portfolio | With Sentiment |
 |----------------|----------------|----------------|
-| Sharpe Ratio   | **1.83**       | **1.91**       |
+| Sharpe Ratio   | **1.85**       | **1.93**       |
 | Performance    | Adjusted only for last 30 days | — |
 
 > ✅ Sentiment-adjusted weights slightly outperform in Sharpe ratio, especially under volatile conditions.
